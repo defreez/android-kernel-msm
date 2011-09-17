@@ -7,7 +7,7 @@ MACHINE=mahimahi
 VARIANT=mahimahi
 OUTPUT=/tmp/kernel-msm
 CROSSPREFIX=arm-eabi-
-CONFIG=nexusone
+CONFIG=whisper
 
 # Determine the host architecture, and which default prebuilt tag we need.
 # For the toolchain auto-detection.

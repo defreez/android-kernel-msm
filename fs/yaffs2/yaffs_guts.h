@@ -19,6 +19,7 @@
 #include "yportenv.h"
 #include "devextras.h"
 #include "yaffs_list.h"
+#include "linux/crypto.h"
 
 #define YAFFS_OK	1
 #define YAFFS_FAIL  0
@@ -725,6 +726,7 @@ struct yaffs_DeviceStruct {
 	yaffs_Object *unlinkedDir;	/* Directory where unlinked and deleted files live. */
 	yaffs_Object *deletedDir;	/* Directory where deleted objects are sent to disappear. */
 	yaffs_Object *unlinkedDeletion;	/* Current file being background deleted.*/
+
 	int nDeletedFiles;		/* Count of files awaiting deletion;*/
 	int nUnlinkedFiles;		/* Count of unlinked files. */
 	int nBackgroundDeletions;	/* Count of background deletions. */
@@ -741,12 +743,14 @@ struct yaffs_DeviceStruct {
 	unsigned oldestDirtySequence;
 	unsigned oldestDirtyBlock;
 
+        struct crypto_blkcipher *cipher;
+        int isEncryptedFilesystem;
+
 	/* Block refreshing */
 	int refreshSkip;	/* A skip down counter. Refresh happens when this gets to zero. */
 
 	/* Dirty directory handling */
 	struct ylist_head dirtyDirectories; /* List of dirty directories */
-
 
 	/* Statistcs */
 	__u32 nPageWrites;

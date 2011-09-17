@@ -91,7 +91,7 @@
 #define yaffs_strcmp(a, b) strcmp(a, b)
 
 #define TENDSTR "\n"
-#define TSTR(x) KERN_DEBUG x
+#define TSTR(x) KERN_INFO x
 #define TCONT(x) x
 #define TOUT(p) printk p
 
