@@ -9,8 +9,6 @@
 
 #include "bootimg.h"
 
-#define IMGFILE "whispercore-0.5.5-boot.img"
-
 // Adapted from write_padding in mkbootimg.c
 int skip_padding(int fd, unsigned pagesize, unsigned itemsize)
 {
@@ -26,6 +24,13 @@ int skip_padding(int fd, unsigned pagesize, unsigned itemsize)
 	return lseek(fd, count, SEEK_CUR);
 }
 
+int usage(void)
+{
+    fprintf(stderr,"usage: mkbootimg <filename>\n");
+    return 1;
+}
+
+
 int main(int argc, char **argv)
 {
 	int fd;			// file descriptor
@@ -33,8 +38,18 @@ int main(int argc, char **argv)
 	void *kernel;	
 	void *ramdisk;
 	void *second;	
+	char *IMGFILE;
+
+	if (argc < 2)
+		return usage();
+	else
+		IMGFILE = argv[1];
 
 	fd = open(IMGFILE, O_RDONLY);
+	if (fd < 0) {
+		fprintf(stderr, "error opening file\n");
+		return 1;
+	}
 
 	// Read the contents of boot image header
 	read(fd, &hdr, sizeof(hdr));
